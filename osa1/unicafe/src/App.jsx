@@ -14,6 +14,20 @@ const Stat = ({ label, n }) => {
   );
 };
 
+const Summary = ({ good, neutral, bad }) => {
+  const all = good + neutral + bad;
+  const average = (good - bad) / all;
+  const percentPositive = good / all * 100;
+  
+  return (
+    <>
+      <Stat label="All" n={all} />
+      <Stat label="Average" n={average} />
+      <Stat label="Positive" n={percentPositive + " %"} />
+    </>
+  )
+}
+
 const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
@@ -29,6 +43,7 @@ const App = () => {
       <Stat label="good" n={good} />
       <Stat label="neutral" n={neutral} />
       <Stat label="bad" n={bad} />
+      <Summary good={good} neutral={neutral} bad={bad} />
     </div>
   );
 };
