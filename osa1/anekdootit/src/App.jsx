@@ -31,8 +31,18 @@ const App = () => {
     setPoints(copy);
   }
 
+  let mostPopularIndex = 0;
+  let maxPoints = 0;
+  points.forEach((v, i) => {
+    if (v > maxPoints) {
+      maxPoints = v;
+      mostPopularIndex = i;
+    }
+  });
+
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
       <p>Has {points[selected]} votes</p>
       <button onClick={handleVote}>
@@ -41,8 +51,13 @@ const App = () => {
       <button onClick={nextAnecdote}>
         next anecdote
       </button>
+      <h1>
+        Anecdote with most votes
+      </h1>
+      <p>{anecdotes[mostPopularIndex]}</p>
+      <p>Has {maxPoints} votes</p>
     </div>
-  )
+  );
 };
 
 export default App
