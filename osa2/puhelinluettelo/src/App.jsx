@@ -1,75 +1,25 @@
 import { useEffect, useState } from "react";
 import personService from './services/persons';
-
-const Filter = ({ setFilter }) => {
-  return (
-    <div>filter shown with <Input setter={setFilter}/></div>
-  );
-};
-
-const Input = ({ value, setter }) => {
-  const handler = (event) => {
-    setter(event.target.value);
-  };
-
-  return (
-    <input value={value} onChange={handler} />
-  );
-};
-
-const PersonForm = ({ newEntry }) => {
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-
-  const clearValues = () => {
-    setNewName('');
-    setNewNumber('');
-  };
-  
-  const addPerson = (event) => {
-    event.preventDefault();
-    const newPerson = {
-      name: newName,
-      number: newNumber
-    };
-    newEntry(newPerson, clearValues);
-  };
-  
-  return (
-    <form>
-      <h2>Add new entry</h2>
-      <div>name: <Input value={newName} setter={setNewName} /></div>
-      <div>number: <Input value={newNumber} setter={setNewNumber} /></div>
-      <div>
-        <button type="submit" onClick={addPerson}>add</button>
-      </div>
-    </form>
-  );
-};
-
-const Persons = ({ filter, persons, handleDelete }) => {
-  console.log(persons);
-  const filtered = persons.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-
-  return (
-    <>
-      <h2>Numbers</h2>
-      {filtered.map(person => (
-        <div key={person.id}>
-          {person.name} {person.number}
-          <button onClick={() => handleDelete(person)}>
-            delete
-          </button>
-        </div>
-      ))}
-    </>
-  );
-};
+import Input from './Input';
+import PersonForm from "./PersonForm"; 
+import Filter from "./Filter"; 
+import Persons from "./Persons"; 
+import Notification from "./Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [filter, setFilter] = useState('');
+  const [notification, setNotification] = useState(null);
 
+  const notify = (message, kind = 'success', timeout = 5000) => {
+    setNotification({message, kind});
+    setTimeout(() => {
+      setNotification(null);
+    }, timeout);
+  };
+
+  const error = args => notify(...args, kind = 'error');
+  
   const loadPersons = useEffect(() => {
     personService.getAll()
       .then(data => {
@@ -94,6 +44,7 @@ const App = () => {
             }
           });
           setPersons(newPersons);
+          notify(`Updated number for ${person.name}`);
         });
 
       return;
@@ -102,6 +53,7 @@ const App = () => {
       .then(returnedData => {
         setPersons(persons.concat(returnedData));  
         clearValues();
+        notify(`Added ${returnedData.name}`);
       })
   };
 
@@ -110,6 +62,7 @@ const App = () => {
       personService.remove(entry.id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== entry.id));
+          notify(`Deleted ${entry.name}`);
         });
     }
   }
@@ -117,6 +70,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <Filter setFilter={setFilter} />
       <PersonForm newEntry={newEntry} />
       <Persons 
