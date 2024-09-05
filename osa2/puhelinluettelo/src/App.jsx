@@ -11,16 +11,16 @@ const App = () => {
   const [filter, setFilter] = useState('');
   const [notification, setNotification] = useState(null);
 
-  const notify = (message, kind = 'success', timeout = 5000) => {
+  const notify = ({message, kind = 'success', timeout = 5000}) => {
     setNotification({message, kind});
     setTimeout(() => {
       setNotification(null);
     }, timeout);
   };
 
-  const error = args => notify(...args, kind = 'error');
+  const error = args => notify({...args, kind: 'error'});
   
-  const loadPersons = useEffect(() => {
+  useEffect(() => {
     personService.getAll()
       .then(data => {
         setPersons(data);
@@ -44,7 +44,7 @@ const App = () => {
             }
           });
           setPersons(newPersons);
-          notify(`Updated number for ${person.name}`);
+          notify({message: `Updated number for ${person.name}`});
         });
 
       return;
@@ -53,7 +53,7 @@ const App = () => {
       .then(returnedData => {
         setPersons(persons.concat(returnedData));  
         clearValues();
-        notify(`Added ${returnedData.name}`);
+        notify({message: `Added ${returnedData.name}`});
       })
   };
 
@@ -62,7 +62,10 @@ const App = () => {
       personService.remove(entry.id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== entry.id));
-          notify(`Deleted ${entry.name}`);
+          notify({message: `Deleted ${entry.name}`});
+        })
+        .catch(e => {
+          error({message: `Information for ${entry.name} has already been deleted`});
         });
     }
   }
