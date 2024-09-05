@@ -48,13 +48,14 @@ const PersonForm = ({ newEntry }) => {
 };
 
 const Persons = ({ filter, persons, handleDelete }) => {
-  const filtered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
+  console.log(persons);
+  const filtered = persons.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
 
   return (
     <>
       <h2>Numbers</h2>
       {filtered.map(person => (
-        <div key={person.name}>
+        <div key={person.id}>
           {person.name} {person.number}
           <button onClick={() => handleDelete(person)}>
             delete
@@ -71,19 +72,35 @@ const App = () => {
 
   const loadPersons = useEffect(() => {
     personService.getAll()
-      .then(response => {
-        setPersons(response.data);
+      .then(data => {
+        setPersons(data);
       });
   }, []);
 
   const newEntry = (newPerson, clearValues) => {
-    if (persons.find(person => person.name === newPerson.name)) {
-      alert(`${newPerson.name} is already added to phonebook`);
+    const person = persons.find(p => p.name === newPerson.name);
+    if (person) {
+      if(!confirm(`${newPerson.name} is already added to phonebook, replace the old number with a new one?`)) {
+        return;
+      }
+
+      personService.update(person.id, {...newPerson})
+        .then(returnedData => {
+          const newPersons = persons.map(p => {
+            if (person.id == p.id) {
+              return returnedData;
+            } else {
+              return p;
+            }
+          });
+          setPersons(newPersons);
+        });
+
       return;
     }
     personService.create(newPerson)
-      .then(response => {
-        setPersons(persons.concat(response.data));  
+      .then(returnedData => {
+        setPersons(persons.concat(returnedData));  
         clearValues();
       })
   };
