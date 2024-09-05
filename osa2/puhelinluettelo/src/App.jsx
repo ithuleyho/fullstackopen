@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from 'axios';
+import personService from './services/persons';
 
 const Filter = ({ setFilter }) => {
   return (
@@ -20,6 +20,11 @@ const Input = ({ value, setter }) => {
 const PersonForm = ({ newEntry }) => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
+
+  const clearValues = () => {
+    setNewName('');
+    setNewNumber('');
+  };
   
   const addPerson = (event) => {
     event.preventDefault();
@@ -27,10 +32,7 @@ const PersonForm = ({ newEntry }) => {
       name: newName,
       number: newNumber
     };
-    if (newEntry(newPerson).succeeded) {
-      setNewName('');
-      setNewNumber('');
-    }
+    newEntry(newPerson, clearValues);
   };
   
   return (
@@ -63,19 +65,22 @@ const App = () => {
   const [filter, setFilter] = useState('');
 
   const loadPersons = useEffect(() => {
-    axios.get('http://localhost:3001/persons')
+    personService.getAll()
       .then(response => {
         setPersons(response.data);
       });
   }, []);
 
-  const newEntry = (newPerson) => {
+  const newEntry = (newPerson, clearValues) => {
     if (persons.find(person => person.name === newPerson.name)) {
       alert(`${newPerson.name} is already added to phonebook`);
-      return {succeeded: false};
+      return;
     }
-    setPersons(persons.concat(newPerson));  
-    return {succeeded: true};
+    personService.create(newPerson)
+      .then(response => {
+        setPersons(persons.concat(response.data));  
+        clearValues();
+      })
   };
   
   return (
