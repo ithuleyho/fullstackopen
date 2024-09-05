@@ -47,14 +47,19 @@ const PersonForm = ({ newEntry }) => {
   );
 };
 
-const Persons = ({ filter, persons }) => {
+const Persons = ({ filter, persons, handleDelete }) => {
   const filtered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
 
   return (
     <>
       <h2>Numbers</h2>
       {filtered.map(person => (
-        <p key={person.name}>{person.name} {person.number}</p>
+        <div key={person.name}>
+          {person.name} {person.number}
+          <button onClick={() => handleDelete(person)}>
+            delete
+          </button>
+        </div>
       ))}
     </>
   );
@@ -82,13 +87,25 @@ const App = () => {
         clearValues();
       })
   };
+
+  const deleteEntry = entry => {
+    if(confirm(`Delete ${entry.name}?`)) {
+      personService.remove(entry.id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== entry.id));
+        });
+    }
+  }
   
   return (
     <div>
       <h2>Phonebook</h2>
       <Filter setFilter={setFilter} />
       <PersonForm newEntry={newEntry} />
-      <Persons filter={filter} persons={persons} />
+      <Persons 
+        filter={filter} 
+        persons={persons} 
+        handleDelete={deleteEntry} />
     </div>
   );
 };
