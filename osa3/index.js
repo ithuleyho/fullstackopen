@@ -11,6 +11,7 @@ morgan.token('body', (req, _) => {
 
 app.use(express.json());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+app.use(express.static('dist'))
 
 const MAX_SIZE = 1_000_000;
 
