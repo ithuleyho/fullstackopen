@@ -75,12 +75,9 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  // the handout says the name must be unique, but 
-  // people with the same name do exists. numbers however are
-  // usually linked to one person only.
-  if (persons.find(person => person.number === body.number)) {
+  if (persons.find(person => person.name === body.name)) {
     return response.status(409).json({
-      error: 'number must be unique'
+      error: 'name must be unique'
     });
   }
 
