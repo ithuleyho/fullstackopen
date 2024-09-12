@@ -52,6 +52,9 @@ const App = () => {
           });
           setPersons(newPersons);
           notify({message: `Updated number for ${person.name}`});
+        })
+        .catch(e => {
+          error({message: e});
         });
 
       return;
@@ -61,6 +64,9 @@ const App = () => {
         setPersons(persons.concat(returnedData));  
         clearValues();
         notify({message: `Added ${returnedData.name}`});
+      })
+      .catch(e => {
+        error({message: 'Name must be unique'});
       })
   };
 
@@ -73,6 +79,7 @@ const App = () => {
         })
         .catch(e => {
           error({message: `Information for ${entry.name} has already been deleted`});
+          setPersons(persons.filter(p => p.id !== entry.id));
         });
     }
   }
