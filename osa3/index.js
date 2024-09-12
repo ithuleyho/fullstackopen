@@ -40,7 +40,7 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id;
-  if (persons.find(person => person.id === id) === null) {
+  if (!persons.find(person => person.id === id)) {
     return response.status(404).end();
   }
   persons = persons.filter(person => person.id !== id);

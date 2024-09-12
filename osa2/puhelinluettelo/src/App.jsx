@@ -23,7 +23,14 @@ const App = () => {
   useEffect(() => {
     personService.getAll()
       .then(data => {
+        if (typeof(data) !== 'object') {
+          throw 'Could not retrieve data';
+        }
         setPersons(data);
+      })
+      .catch(e => {
+        error({message: e});
+        setPersons([]);
       });
   }, []);
 
